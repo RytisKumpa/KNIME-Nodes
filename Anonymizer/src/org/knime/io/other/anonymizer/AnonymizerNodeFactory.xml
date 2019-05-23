@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<knimeNode icon="./default.png" type="Source" xmlns="http://knime.org/node/v2.8" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.10 http://knime.org/node/v2.10.xsd">
+    <name>Anonymizer</name>
+    
+    <shortDescription>
+        This node generates universally unique identifier (UUID) tags or hash codes for each row in selected columns.  
+    </shortDescription>
+    
+    <fullDescription>
+        <intro>This node allows to generare Universally Unique Identifier (UUID) tags or hash codes for each row in selected columns.</intro>
+        
+        
+        <option name="Exclude">This list contains the names of columns that should not be processed.</option>
+        <option name="Include">This list contains the names of columns that will be processed.</option><option name="Append Identifier">If selected, the generated tags or hash codes will be appended to the original String value of the particular cell. I not selected, the generated tags or hash codes will replace the original value of the cell.</option>
+    	<option name="Anonymization Function">The user must select either UUID or one of the provided hashing algorithms (MD5, SHA-256, SHA-384, or SHA-512) as the anonymization function.</option>
+    </fullDescription>
+    
+    <ports>
+        <inPort index="0" name="Table to be anonymized">Table from which columns will be anonymized.</inPort>
+        <outPort index="0" name="Anonymized table">Table with selected columns anonymized.</outPort>
+    </ports>
+</knimeNode>
