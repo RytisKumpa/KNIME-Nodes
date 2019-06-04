@@ -31,14 +31,14 @@ public class AnonymizerNodeDialog extends DefaultNodeSettingsPane {
         
         // the column filter dialog component
         addDialogComponent(new DialogComponentColumnFilter(
-        		new SettingsModelFilterString(AnonymizerNodeModel.CFGKEY_SELECT), 0, Boolean.FALSE));
+        		new SettingsModelFilterString(AnonymizerStreamableNodeModel.CFGKEY_SELECT), 0, Boolean.FALSE));
         
         // the "Append identifier" checkbox dialog component. This button allows the user to select 
         // whether the identifier should be appended or replace the original string.
         final String m_defaultAppendTitle = "Append identifier";
         
         addDialogComponent(new DialogComponentBoolean(
-        		new SettingsModelBoolean(AnonymizerNodeModel.CFGKEY_APPEND, Boolean.FALSE), m_defaultAppendTitle));
+        		new SettingsModelBoolean(AnonymizerStreamableNodeModel.CFGKEY_APPEND, Boolean.FALSE), m_defaultAppendTitle));
         
         // settings for the anonymization function selection dialog component.
         final String m_functionButtonTitle = "Please select the prefered anonymization function:"; 
@@ -47,7 +47,7 @@ public class AnonymizerNodeDialog extends DefaultNodeSettingsPane {
         final String[] m_functionActionCommands = {"UUID", "MD5", "SHA-256", "SHA-384", "SHA-512"};
         
         addDialogComponent(new DialogComponentButtonGroup(
-        		new SettingsModelString(AnonymizerNodeModel.CFGKEY_FUNCTIONS, AnonymizerNodeModel.m_warningMessage), m_functionButtonTitle, m_vertical, m_functions, m_functionActionCommands));
+        		new SettingsModelString(AnonymizerStreamableNodeModel.CFGKEY_FUNCTIONS, AnonymizerStreamableNodeModel.m_warningMessage), m_functionButtonTitle, m_vertical, m_functions, m_functionActionCommands));
                     
     }
 }

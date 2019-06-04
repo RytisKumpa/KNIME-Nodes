@@ -78,8 +78,6 @@ public class AnonymizerNodeModel extends NodeModel {
      * Constructor for the node model.
      */
     protected AnonymizerNodeModel() {
-    
-        // TODO one incoming port and one outgoing port is assumed
         super(1, 1);
     }
 

@@ -8,14 +8,14 @@ import org.knime.core.node.NodeView;
  *
  * @author Rytis Kumpa
  */
-public class AnonymizerNodeView extends NodeView<AnonymizerNodeModel> {
+public class AnonymizerNodeView extends NodeView<AnonymizerStreamableNodeModel> {
 
     /**
      * Creates a new view.
      * 
-     * @param nodeModel The model (class: {@link AnonymizerNodeModel})
+     * @param nodeModel The model (class: {@link AnonymizerStreamableNodeModel})
      */
-    protected AnonymizerNodeView(final AnonymizerNodeModel nodeModel) {
+    protected AnonymizerNodeView(final AnonymizerStreamableNodeModel nodeModel) {
         super(nodeModel);
 
         // TODO instantiate the components of the view here.
@@ -30,8 +30,8 @@ public class AnonymizerNodeView extends NodeView<AnonymizerNodeModel> {
 
         // TODO retrieve the new model from your nodemodel and 
         // update the view.
-        AnonymizerNodeModel nodeModel = 
-            (AnonymizerNodeModel)getNodeModel();
+        AnonymizerStreamableNodeModel nodeModel = 
+            (AnonymizerStreamableNodeModel)getNodeModel();
         assert nodeModel != null;
         
         // be aware of a possibly not executed nodeModel! The data you retrieve
