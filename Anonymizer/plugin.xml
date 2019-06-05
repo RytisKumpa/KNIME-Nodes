@@ -7,7 +7,7 @@
          point="org.knime.workbench.repository.categories">
       <category
             description="Category containing my nodes"
-            icon="icons/default.png"
+            icon="icons/lock-icon.png"
             level-id="myNodes"
             name="My nodes"
             path="/"/>
