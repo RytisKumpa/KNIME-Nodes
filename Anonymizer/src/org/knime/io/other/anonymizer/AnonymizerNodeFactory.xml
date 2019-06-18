@@ -13,6 +13,7 @@
         <option name="Exclude">This list contains the names of columns that should not be processed.</option>
         <option name="Include">This list contains the names of columns that will be processed.</option><option name="Append Identifier">If selected, the generated tags or hash codes will be appended to the original String value of the particular cell. I not selected, the generated tags or hash codes will replace the original value of the cell.</option>
     	<option name="Anonymization Function">The user must select either UUID or one of the provided hashing algorithms (MD5, SHA-256, SHA-384, or SHA-512) as the anonymization function.</option>
+    	<option name="Maximum number of unique UUID values">Due to the large memory consumption of unique values assigned to UUIDs, an appropriate limit has to be set. If there is a large number of unique values, please select another hashing function.</option>
     </fullDescription>
     
     <ports>

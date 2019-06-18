@@ -1,11 +1,16 @@
 package org.knime.io.other.anonymizer;
 
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentButtonGroup;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnFilter;
+import org.knime.core.node.defaultnodesettings.DialogComponentNumberEdit;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelFilterString;
+import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 /**
@@ -45,10 +50,36 @@ public class AnonymizerNodeDialog extends DefaultNodeSettingsPane {
         final Boolean m_vertical = false;
         final String[] m_functions = {"UUID", "MD5", "SHA-256", "SHA-384", "SHA-512"};
         final String[] m_functionActionCommands = {"UUID", "MD5", "SHA-256", "SHA-384", "SHA-512"};
-        
+        SettingsModelString functionSetting = new SettingsModelString(AnonymizerStreamableNodeModel.CFGKEY_FUNCTIONS,  AnonymizerStreamableNodeModel.m_warningMessage);       
         addDialogComponent(new DialogComponentButtonGroup(
-        		new SettingsModelString(AnonymizerStreamableNodeModel.CFGKEY_FUNCTIONS, AnonymizerStreamableNodeModel.m_warningMessage), m_functionButtonTitle, m_vertical, m_functions, m_functionActionCommands));
+        		functionSetting, m_functionButtonTitle, m_vertical, m_functions, m_functionActionCommands));
                     
+        final String m_maxValuesTitle = "Maximum number of unique UUID values:";
+        SettingsModelInteger maxValuesSetting = new SettingsModelInteger(AnonymizerStreamableNodeModel.CFGKEY_MAXVALUES, 100000);
+        addDialogComponent(new DialogComponentNumberEdit(maxValuesSetting, m_maxValuesTitle));
+  
+        functionSetting.addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent arg0) {
+				// TODO Auto-generated method stub
+				if(functionSetting.getStringValue() == "UUID") {
+					maxValuesSetting.setEnabled(true);
+				} else {
+					maxValuesSetting.setEnabled(false);
+				}
+				
+			}
+		});
+        
+        
+        
     }
 }
+
+
+
+
+
+
 

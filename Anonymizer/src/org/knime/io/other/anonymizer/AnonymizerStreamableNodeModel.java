@@ -22,6 +22,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelFilterString;
+import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.streamable.simple.SimpleStreamableFunctionNodeModel;
 
@@ -43,6 +44,7 @@ public class AnonymizerStreamableNodeModel extends SimpleStreamableFunctionNodeM
 	static final String CFGKEY_SELECT = "Selected columns";
 	static final String CFGKEY_APPEND = "Append identifier";
 	static final String CFGKEY_FUNCTIONS = "Anonymization functions";
+	static final String CFGKEY_MAXVALUES = "Maximum number of unique values";
 
 	private final SettingsModelFilterString m_filter = new SettingsModelFilterString(
 			AnonymizerStreamableNodeModel.CFGKEY_SELECT);
@@ -51,11 +53,13 @@ public class AnonymizerStreamableNodeModel extends SimpleStreamableFunctionNodeM
 	static final String m_warningMessage = "Incompatible anonymization function selected.";
 	private final SettingsModelString m_functions = new SettingsModelString(
 			AnonymizerStreamableNodeModel.CFGKEY_FUNCTIONS, m_warningMessage);
+	private final SettingsModelInteger m_maxUnique = new SettingsModelInteger(AnonymizerStreamableNodeModel.CFGKEY_MAXVALUES, 100000);
 
 	// The values set by the user in the dialog panel.
 	List<String> includeList = null;
 	String anonymizationFunction = null;
 	Boolean appendBoolean = null;
+	int maxUniqueValues = 0;
 	MessageDigest messageDigest = null;
 
 	// If the UUID function is chosen, the string value of a column will be mapped
@@ -73,6 +77,7 @@ public class AnonymizerStreamableNodeModel extends SimpleStreamableFunctionNodeM
 		includeList = m_filter.getIncludeList();
 		anonymizationFunction = m_functions.getStringValue();
 		appendBoolean = m_append.getBooleanValue();
+		maxUniqueValues = m_maxUnique.getIntValue();
 
 		DataTableSpec inSpec = inSpecs[0];
 		ColumnRearranger columnRearranger = createColumnRearranger(inSpec);
@@ -142,6 +147,7 @@ public class AnonymizerStreamableNodeModel extends SimpleStreamableFunctionNodeM
 					String newUUID = UUID.randomUUID().toString();
 					anonymizedCell = new StringCell(newUUID);
 					UUIDHashMap.put(inputCell.toString(), newUUID);
+					assert !(UUIDHashMap.size() > maxUniqueValues) : "The amount of unique values that can be mapped to UUIDs has been reached. Please try using another hashing function instead.";	
 				}
 
 			} else {
@@ -196,6 +202,7 @@ public class AnonymizerStreamableNodeModel extends SimpleStreamableFunctionNodeM
 		m_filter.saveSettingsTo(settings);
 		m_functions.saveSettingsTo(settings);
 		m_append.saveSettingsTo(settings);
+		m_maxUnique.saveSettingsTo(settings);
 
 	}
 
@@ -208,6 +215,7 @@ public class AnonymizerStreamableNodeModel extends SimpleStreamableFunctionNodeM
 		m_filter.validateSettings(settings);
 		m_append.validateSettings(settings);
 		m_functions.validateSettings(settings);
+		m_maxUnique.validateSettings(settings);
 
 	}
 
@@ -220,6 +228,7 @@ public class AnonymizerStreamableNodeModel extends SimpleStreamableFunctionNodeM
 		m_filter.loadSettingsFrom(settings);
 		m_append.loadSettingsFrom(settings);
 		m_functions.loadSettingsFrom(settings);
+		m_maxUnique.loadSettingsFrom(settings);
 
 	}
 
