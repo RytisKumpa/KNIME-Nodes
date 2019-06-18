@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: DaviesBouldinIndex-Node extension for KNIME Workbench
+Bundle-SymbolicName: org.knime.other; singleton:=true
+Bundle-Version: 1.0.0
+Bundle-ClassPath: daviesbouldinindex.jar
+Bundle-Activator: org.knime.other.DaviesBouldinIndexNodePlugin
+Bundle-Vendor: Rytis Kumpa
+Require-Bundle: org.eclipse.core.runtime,
+ org.knime.workbench.core,
+ org.knime.workbench.repository,
+ org.knime.base
+Bundle-ActivationPolicy: lazy
+Export-Package: org.knime.other
+
