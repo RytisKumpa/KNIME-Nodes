@@ -13,6 +13,7 @@ import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
+import org.knime.core.data.DataTable;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataTableSpecCreator;
 import org.knime.core.data.DoubleValue;
@@ -37,7 +38,7 @@ import org.knime.core.node.NodeSettingsWO;
 
 
 /**
- * This is the model implementation of DaviesBouldinIndex.
+ * This is the model implementation of Davies-Bouldin Index.
  * This node computes the Davies-Bouldin index for evaluating clustering performance on a dataset.
  *
  * @author Rytis Kumpa
@@ -150,7 +151,7 @@ public class DaviesBouldinIndexNodeModel extends NodeModel {
 			clusters.get(cluster).close();
 		}
 		
-		// Cluster Centroids are computed, so that closest clusters are found.
+		// Cluster centroids are computed, so that closest clusters are found.
 		if (clusters.size() > 1) {
 			computeClusterCentroids();
 		} else {
@@ -259,16 +260,15 @@ public class DaviesBouldinIndexNodeModel extends NodeModel {
 		
 		RowIterator iterator = cluster.getTable().iterator();
 		double dist = 0.0;
-		long i = 0;
+		long size = cluster.size();
 		
 		while(iterator.hasNext()) {
-			i++;
 			ArrayList<Double> point = iterator.next().stream().map(x -> ((DoubleValue) x).getDoubleValue())
 					.collect(Collectors.toCollection(ArrayList::new));
 			dist += euclidianDistance(centroid, point);
 		}		
 		
-		return dist / (double) i;
+		return dist / (double) size;
 	}
 	
 	private double clusterSeparationMeasure(ArrayList<Double> c1, ArrayList<Double> c2) {
