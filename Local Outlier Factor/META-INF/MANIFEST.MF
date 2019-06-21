@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: LocalOutlierFactor-Node extension for KNIME Workbench
+Bundle-SymbolicName: org.knime.localoutlierfactor; singleton:=true
+Bundle-Version: 1.0.0
+Bundle-ClassPath: localoutlierfactor.jar
+Bundle-Activator: org.knime.localoutlierfactor.LocalOutlierFactorNodePlugin
+Bundle-Vendor: Rytis Kumpa
+Require-Bundle: org.eclipse.core.runtime,
+ org.knime.workbench.core,
+ org.knime.workbench.repository,
+ org.knime.base
+Bundle-ActivationPolicy: lazy
+Export-Package: org.knime.localoutlierfactor
+

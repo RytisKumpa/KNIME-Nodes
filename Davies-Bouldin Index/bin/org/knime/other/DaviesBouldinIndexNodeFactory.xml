@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<knimeNode icon="./default.png" type="Source" xmlns="http://knime.org/node/v2.8" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.10 http://knime.org/node/v2.10.xsd">
+    <name>Davies-Bouldin Index</name>
+    
+    <shortDescription>
+        This node computes the Davies-Bouldin index for evaluating clustering performance on a dataset.
+    </shortDescription>
+    
+    <fullDescription>
+        <intro>This node computes the Davies-Bouldin index for evaluating clustering performance on a dataset. Davies-Bouldin index is a usefull and computationally efficient metric for evaluating how well clustering has been performed and help decide the ideal number of clusters the data has to be assigned to. The index takes into account the similarity of each cluster to other clusters. The score returneed is non-negative, where a lower score suggests a better clustering result. A low score indicates dense clusters and high distances between cluster centroids.</intro>
+        
+        
+        <option name="Exclude">Columns to exclude from the computation.</option>
+        <option name="Include">Columns to include in the computation.</option>
+        <option name="Column with cluster names">The column that contains the name of the cluster for each point.</option>
+        <option name="Randomly sample a subset">If checked, a random subset will be sampled from the dataset. This is recommended for large datasets since computation is resource intensive.</option>
+        <option name="Size of the sample">The size of the sample as the proportion of the dataset. It can be in the range from 0.01 to 1.0, where 1.0 uses the whole dataset.</option>
+        <option name="Random seed">A random seed to be used when randomly sampling the data.</option>
+    </fullDescription>
+    
+    <ports>
+        <inPort index="0" name="Table with the data and clustering results">The table with the points and their cluster allocation as a separate column.</inPort>
+        <outPort index="0" name="Davies-Bouldin Index">A table with one column that has one row containing the computed score.</outPort>
+    </ports>
+</knimeNode>
