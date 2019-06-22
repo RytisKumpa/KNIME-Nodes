@@ -1,37 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <knimeNode icon="./default.png" type="Source" xmlns="http://knime.org/node/v2.8" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.10 http://knime.org/node/v2.10.xsd">
-    <name>LocalOutlierFactor</name>
+    <name>Local Outlier Factor</name>
     
     <shortDescription>
         This node computes the Local Outlier Factor for each point in a table and helps detect anomalous points.
     </shortDescription>
     
     <fullDescription>
-        <intro>Insert long description here...</intro>
+        <intro>This node computes the Local Outlier Factor (LOC) for each point in a table and helps detect anomalous points. LOC measures the local deviation of each point with respect to its closest neighbors. A score of ~1 suggests the point is of similar density as its neighbors. A larger score would suggest the point is an outlier, and a lower score would suggest the point is of higher density than its neighbors.</intro>
         
         
-        <option name="short name of first option (like in the dialog)">description of first option</option>
-        <option name="short name of second option (like in the dialog)">description of second option</option>
-        <!-- possibly more options that can also be grouped by tabs -->
-        <!--
-        <tab name="Standard Options">
-            <option name="short name of first option (like in the dialog)">description of first option</option>
-            <option name="short name of second option (like in the dialog)">description of second option</option>
-        </tab>
-        <tab name="Advanced Options">
-            <option name="short name of first advanced option (like in the dialog)">description of first advanced option</option>
-        </tab>
-        -->
+        <option name="Exclude">Columns to exclude from the computation.</option>
+        <option name="Include">Columns to include in the computation.</option>
+        <option name="Number of neigbors">The number of closest points each point is going to be evaluated against. A larger number might improve the accuracy of the metric but also increase the processing time.</option>
+
     </fullDescription>
     
     <ports>
-        <inPort index="0" name="In-Port name">Description of first input port...</inPort>
+        <inPort index="0" name="Input table">The data table with points in the vector space.</inPort>
         <!-- possibly more input ports here-->
-        <outPort index="0" name="Out-Port name">Description of first output port...</outPort>
+        <outPort index="0" name="Output table with LOC appended for each point">The original data table with Local Outlier Factor appended for each point.</outPort>
         <!-- possibly more output ports here-->
     </ports>    
-    <views>
-        <view index="0" name="name of first view">Description of first view...</view>
-        <!--view index="1" name="name of second view">Description of second view...</view-->
-    </views>
 </knimeNode>

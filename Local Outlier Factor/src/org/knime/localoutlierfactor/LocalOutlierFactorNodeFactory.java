@@ -26,7 +26,7 @@ public class LocalOutlierFactorNodeFactory
      */
     @Override
     public int getNrNodeViews() {
-        return 1;
+        return 0;
     }
 
     /**
@@ -35,7 +35,7 @@ public class LocalOutlierFactorNodeFactory
     @Override
     public NodeView<LocalOutlierFactorNodeModel> createNodeView(final int viewIndex,
             final LocalOutlierFactorNodeModel nodeModel) {
-        return new LocalOutlierFactorNodeView(nodeModel);
+        return null;
     }
 
     /**

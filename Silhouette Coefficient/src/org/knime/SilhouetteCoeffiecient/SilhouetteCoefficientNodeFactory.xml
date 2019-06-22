@@ -7,7 +7,7 @@
     </shortDescription>
     
     <fullDescription>
-        <intro>This node computes the Silhouette Coefficient for the provided clustering result. Silhouette Coefficient is a useful metric for evaluating clustering performance. It is computed using (b - a) / max(a, b), where a is the mean inter-cluster distance and b is the mean intra-cluster distance from the closest cluster for each sample. The score can range from -1.0 to 1.0, while the higher the score, the better. There has to be at least two clusters for the score to be computed.</intro>
+        <intro>This node computes the Silhouette Coefficient for the provided clustering result. Silhouette Coefficient is a useful metric for evaluating clustering performance. It is computed using (b - a) / max(a, b), where a is the mean inter-cluster distance and b is the mean intra-cluster distance from the closest cluster for each sample. The score can range from -1.0 to 1.0, while the higher the score, the better. There have to be at least two clusters for the score to be computed.</intro>
         
         
         <option name="Exlude">Columns to exclude from the computation.</option><option name="Include">Columns to include in the computation.</option>
