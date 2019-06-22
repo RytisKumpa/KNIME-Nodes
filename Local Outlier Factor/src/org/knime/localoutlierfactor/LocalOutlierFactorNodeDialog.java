@@ -20,11 +20,6 @@ import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
  */
 public class LocalOutlierFactorNodeDialog extends DefaultNodeSettingsPane {
 
-    /**
-     * New pane for configuring LocalOutlierFactor node dialog.
-     * This is just a suggestion to demonstrate possible default dialog
-     * components.
-     */
     @SuppressWarnings("unchecked")
 	protected LocalOutlierFactorNodeDialog() {
         super();

@@ -23,7 +23,6 @@ import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
@@ -38,9 +37,6 @@ import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
  * @author Rytis Kumpa
  */
 public class LocalOutlierFactorNodeModel extends NodeModel {
-
-	// the logger instance
-	private static final NodeLogger logger = NodeLogger.getLogger(LocalOutlierFactorNodeModel.class);
 
 	static final String CFGKEY_NUMNEIGHBORS = "Number of neighbors";
 	static final String CFGKEY_FILTER = "Include columns";

@@ -20,9 +20,6 @@ public class LocalOutlierFactorNodePlugin extends Plugin {
     // The shared instance.
     private static LocalOutlierFactorNodePlugin plugin;
 
-    /**
-     * The constructor.
-     */
     public LocalOutlierFactorNodePlugin() {
         super();
         plugin = this;
