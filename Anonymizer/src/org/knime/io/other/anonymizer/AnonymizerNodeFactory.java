@@ -11,14 +11,14 @@ import org.knime.core.node.NodeView;
  * @author Rytis Kumpa
  */
 public class AnonymizerNodeFactory 
-        extends NodeFactory<AnonymizerStreamableNodeModel> {
+        extends NodeFactory<AnonymizerNodeModel> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public AnonymizerStreamableNodeModel createNodeModel() {
-        return new AnonymizerStreamableNodeModel();
+    public AnonymizerNodeModel createNodeModel() {
+        return new AnonymizerNodeModel();
     }
 
     /**
@@ -33,8 +33,8 @@ public class AnonymizerNodeFactory
      * {@inheritDoc}
      */
     @Override
-    public NodeView<AnonymizerStreamableNodeModel> createNodeView(final int viewIndex,
-            final AnonymizerStreamableNodeModel nodeModel) {
+    public NodeView<AnonymizerNodeModel> createNodeView(final int viewIndex,
+            final AnonymizerNodeModel nodeModel) {
         return null;
     }
 

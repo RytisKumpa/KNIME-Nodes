@@ -27,15 +27,16 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.streamable.simple.SimpleStreamableFunctionNodeModel;
 
 /**
- * This is the model implementation of Anonymizer.
- * This node generates universally unique identifier (UUID) tags or hash codes for each row in selected columns.  
+ * This is the model implementation of Anonymizer. This node generates
+ * universally unique identifier (UUID) tags or hash codes for each row in
+ * selected columns.
  *
  * @author Rytis Kumpa
  */
-public class AnonymizerStreamableNodeModel extends SimpleStreamableFunctionNodeModel {
+public class AnonymizerNodeModel extends SimpleStreamableFunctionNodeModel {
 
 	// the logger instance
-	private static final NodeLogger logger = NodeLogger.getLogger(AnonymizerStreamableNodeModel.class);
+	private static final NodeLogger logger = NodeLogger.getLogger(AnonymizerNodeModel.class);
 
 	/*
 	 * the settings keys that are used to retrieve and store the settings from the
@@ -46,71 +47,72 @@ public class AnonymizerStreamableNodeModel extends SimpleStreamableFunctionNodeM
 	static final String CFGKEY_FUNCTIONS = "Anonymization functions";
 	static final String CFGKEY_MAXVALUES = "Maximum number of unique values";
 
-	private final SettingsModelFilterString m_filter = new SettingsModelFilterString(
-			AnonymizerStreamableNodeModel.CFGKEY_SELECT);
-	private final SettingsModelBoolean m_append = new SettingsModelBoolean(AnonymizerStreamableNodeModel.CFGKEY_APPEND,
+	private final SettingsModelFilterString m_filter = new SettingsModelFilterString(AnonymizerNodeModel.CFGKEY_SELECT);
+	private final SettingsModelBoolean m_append = new SettingsModelBoolean(AnonymizerNodeModel.CFGKEY_APPEND,
 			Boolean.FALSE);
 	static final String m_warningMessage = "Incompatible anonymization function selected.";
-	private final SettingsModelString m_functions = new SettingsModelString(
-			AnonymizerStreamableNodeModel.CFGKEY_FUNCTIONS, m_warningMessage);
-	private final SettingsModelInteger m_maxUnique = new SettingsModelInteger(AnonymizerStreamableNodeModel.CFGKEY_MAXVALUES, 100000);
+	private final SettingsModelString m_functions = new SettingsModelString(AnonymizerNodeModel.CFGKEY_FUNCTIONS,
+			m_warningMessage);
+	private final SettingsModelInteger m_maxUnique = new SettingsModelInteger(AnonymizerNodeModel.CFGKEY_MAXVALUES,
+			1000000);
 
-	// The values set by the user in the dialog panel.
-	List<String> includeList = null;
-	String anonymizationFunction = null;
-	Boolean appendBoolean = null;
-	int maxUniqueValues = 0;
-	MessageDigest messageDigest = null;
+	// Message Digest class that provides Java hashing functions.
+	private MessageDigest m_messageDigest = null;
 
 	// If the UUID function is chosen, the string value of a column will be mapped
 	// to a specific UUID.
-	private HashMap<String, String> UUIDHashMap = null;
+	private HashMap<String, String> m_UUIDHashMap = null;
 
-	
 	/**
-     * {@inheritDoc}
-     */
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
 
 		// Retrieve the values set by the user in the dialog panel
-		includeList = m_filter.getIncludeList();
-		anonymizationFunction = m_functions.getStringValue();
-		appendBoolean = m_append.getBooleanValue();
-		maxUniqueValues = m_maxUnique.getIntValue();
+		// m_includeList = m_filter.getIncludeList();
+		// m_anonymizationFunction = m_functions.getStringValue();
+		// m_appendBoolean = m_append.getBooleanValue();
+		// m_maxUniqueValues = m_maxUnique.getIntValue();
 
 		DataTableSpec inSpec = inSpecs[0];
 		ColumnRearranger columnRearranger = createColumnRearranger(inSpec);
 		return new DataTableSpec[] { columnRearranger.createSpec() };
 	}
 
-	
 	/**
-     * {@inheritDoc}
-     */
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected ColumnRearranger createColumnRearranger(DataTableSpec spec) throws InvalidSettingsException {
 
+		// Retrieve the values set by the user in the dialog panel
+		List<String> m_includeList = m_filter.getIncludeList();
+		String m_anonymizationFunction = m_functions.getStringValue();
+		Boolean m_appendBoolean = m_append.getBooleanValue();
+		int m_maxUniqueValues = m_maxUnique.getIntValue();
+
 		ColumnRearranger columnRearranger = new ColumnRearranger(spec);
-		
+
 		// Store the column indexes of the original data table for each selected include
 		// column.
 		HashMap<String, Integer> includeColumnIdX = new HashMap<String, Integer>();
-		for (String includeColumn : includeList) {
+		for (String includeColumn : m_includeList) {
 			includeColumnIdX.put(includeColumn, columnRearranger.indexOf(includeColumn));
 		}
 
-		for (String includeColumn : includeList) {
+		for (String includeColumn : m_includeList) {
 			int idX = columnRearranger.indexOf(includeColumn);
-			if (appendBoolean) {
-				String newColumnName = includeColumn + " (" + anonymizationFunction + ")";
+			if (m_appendBoolean) {
+				String newColumnName = includeColumn + " (" + m_anonymizationFunction + ")";
 				DataColumnSpecCreator specCreator = new DataColumnSpecCreator(newColumnName, StringCell.TYPE);
 				columnRearranger.insertAt(idX + 1, new SingleCellFactory(specCreator.createSpec()) {
 
 					@Override
 					public DataCell getCell(DataRow row) {
 						DataCell cell = row.getCell(includeColumnIdX.get(includeColumn));
-						return anonymizeCell(cell);
+						return anonymizeCell(cell, m_anonymizationFunction, m_UUIDHashMap, m_messageDigest,
+								m_maxUniqueValues);
 					}
 				});
 			} else {
@@ -120,7 +122,8 @@ public class AnonymizerStreamableNodeModel extends SimpleStreamableFunctionNodeM
 					@Override
 					public DataCell getCell(DataRow row) {
 						DataCell cell = row.getCell(idX);
-						return anonymizeCell(cell);
+						return anonymizeCell(cell, m_anonymizationFunction, m_UUIDHashMap, m_messageDigest,
+								m_maxUniqueValues);
 					}
 				}, idX);
 			}
@@ -129,31 +132,40 @@ public class AnonymizerStreamableNodeModel extends SimpleStreamableFunctionNodeM
 		return columnRearranger;
 	}
 
-	
+
 	/**
-	 * This function anonymizes the input cell according to the anonymization algorithm selected.
+	 * This function anonymizes the input cell according to the anonymization
+	 * algorithm selected.
 	 * @param inputCell
-	 * @return DataCell
+	 * @param m_anonymizationFunction
+	 * @param m_UUIDHashMap
+	 * @param m_maxUniqueValues
+	 * @return DataCell A DataCell with the anonymized content.
 	 */
-	private DataCell anonymizeCell(DataCell inputCell) {
+	private DataCell anonymizeCell(DataCell inputCell, String m_anonymizationFunction,
+			HashMap<String, String> m_UUIDHashMap, MessageDigest m_messageDigest, int m_maxUniqueValues) {
+
 		DataCell anonymizedCell = null;
 		if (!inputCell.isMissing()) {
 			// if UUID is selected, generate a UUID identifier and convert it into a
 			// StringCell
-			if (anonymizationFunction == "UUID") {
-				if (UUIDHashMap.containsKey(inputCell.toString())) {
-					anonymizedCell = new StringCell(UUIDHashMap.get(inputCell.toString()));
+			if (m_anonymizationFunction == "UUID") {
+				if (m_UUIDHashMap.containsKey(inputCell.toString())) {
+					anonymizedCell = new StringCell(m_UUIDHashMap.get(inputCell.toString()));
 				} else {
 					String newUUID = UUID.randomUUID().toString();
 					anonymizedCell = new StringCell(newUUID);
-					UUIDHashMap.put(inputCell.toString(), newUUID);
-					assert !(UUIDHashMap.size() > maxUniqueValues) : "The amount of unique values that can be mapped to UUIDs has been reached. Please try using another hashing function instead.";	
+					m_UUIDHashMap.put(inputCell.toString(), newUUID);
+					if (m_UUIDHashMap.size() > m_maxUniqueValues) {
+						throw new IllegalStateException("The amount of unique values that can be mapped to UUIDs has been reached. "
+								+ "Please try using another hashing function instead.");
+					}
 				}
 
 			} else {
 				// if a hashing algorithm is selected, hash the String value in the cell and
 				// convert the value into StringCell
-				byte[] newHash = messageDigest.digest(inputCell.toString().getBytes());
+				byte[] newHash = m_messageDigest.digest(inputCell.toString().getBytes());
 				String hexString = javax.xml.bind.DatatypeConverter.printHexBinary(newHash);
 				anonymizedCell = new StringCell(hexString);
 			}
@@ -163,27 +175,29 @@ public class AnonymizerStreamableNodeModel extends SimpleStreamableFunctionNodeM
 		return anonymizedCell;
 	}
 
-	
 	/**
-     * {@inheritDoc}
-     */
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected BufferedDataTable[] execute(BufferedDataTable[] inData, ExecutionContext exec) throws Exception {
 
+		String m_anonymizationFunction = m_functions.getStringValue();
+
 		// Creates a message digest instance if a hashing algorithm is selected.
-		if (anonymizationFunction != "UUID") {
-			if (messageDigest == null) {
+		if (m_anonymizationFunction != "UUID") {
+			if (m_messageDigest == null) {
 				try {
-					messageDigest = MessageDigest.getInstance(anonymizationFunction);
+					m_messageDigest = MessageDigest.getInstance(m_anonymizationFunction);
 				} catch (NoSuchAlgorithmException e) {
 					logger.info("Selected hashing algorithm unavailable.");
 				}
 			}
 		}
 
-		// Creates a new HashMap, where corresponding strings will be mapped to a specific UUID.
-		if (anonymizationFunction == "UUID") {
-			UUIDHashMap = new HashMap<String, String>();
+		// Creates a new HashMap, where corresponding strings will be mapped to a
+		// specific UUID.
+		if (m_anonymizationFunction == "UUID") {
+			m_UUIDHashMap = new HashMap<String, String>();
 		}
 
 		BufferedDataTable in = inData[0];
@@ -193,10 +207,9 @@ public class AnonymizerStreamableNodeModel extends SimpleStreamableFunctionNodeM
 		return new BufferedDataTable[] { out };
 	}
 
-	
 	/**
-     * {@inheritDoc}
-     */
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings) {
 		m_filter.saveSettingsTo(settings);
@@ -206,10 +219,9 @@ public class AnonymizerStreamableNodeModel extends SimpleStreamableFunctionNodeM
 
 	}
 
-	
 	/**
-     * {@inheritDoc}
-     */
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected void validateSettings(NodeSettingsRO settings) throws InvalidSettingsException {
 		m_filter.validateSettings(settings);
@@ -219,10 +231,9 @@ public class AnonymizerStreamableNodeModel extends SimpleStreamableFunctionNodeM
 
 	}
 
-	
 	/**
-     * {@inheritDoc}
-     */
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected void loadValidatedSettingsFrom(NodeSettingsRO settings) throws InvalidSettingsException {
 		m_filter.loadSettingsFrom(settings);

@@ -36,33 +36,32 @@ public class AnonymizerNodeDialog extends DefaultNodeSettingsPane {
         
         // the column filter dialog component
         addDialogComponent(new DialogComponentColumnFilter(
-        		new SettingsModelFilterString(AnonymizerStreamableNodeModel.CFGKEY_SELECT), 0, Boolean.FALSE));
+        		new SettingsModelFilterString(AnonymizerNodeModel.CFGKEY_SELECT), 0, Boolean.FALSE));
         
         // the "Append identifier" checkbox dialog component. This button allows the user to select 
         // whether the identifier should be appended or replace the original string.
         final String m_defaultAppendTitle = "Append identifier";
         
         addDialogComponent(new DialogComponentBoolean(
-        		new SettingsModelBoolean(AnonymizerStreamableNodeModel.CFGKEY_APPEND, Boolean.FALSE), m_defaultAppendTitle));
+        		new SettingsModelBoolean(AnonymizerNodeModel.CFGKEY_APPEND, Boolean.FALSE), m_defaultAppendTitle));
         
         // settings for the anonymization function selection dialog component.
         final String m_functionButtonTitle = "Please select the prefered anonymization function:"; 
         final Boolean m_vertical = false;
         final String[] m_functions = {"UUID", "MD5", "SHA-256", "SHA-384", "SHA-512"};
         final String[] m_functionActionCommands = {"UUID", "MD5", "SHA-256", "SHA-384", "SHA-512"};
-        SettingsModelString functionSetting = new SettingsModelString(AnonymizerStreamableNodeModel.CFGKEY_FUNCTIONS,  AnonymizerStreamableNodeModel.m_warningMessage);       
+        SettingsModelString functionSetting = new SettingsModelString(AnonymizerNodeModel.CFGKEY_FUNCTIONS,  AnonymizerNodeModel.m_warningMessage);       
         addDialogComponent(new DialogComponentButtonGroup(
         		functionSetting, m_functionButtonTitle, m_vertical, m_functions, m_functionActionCommands));
                     
         final String m_maxValuesTitle = "Maximum number of unique UUID values:";
-        SettingsModelInteger maxValuesSetting = new SettingsModelInteger(AnonymizerStreamableNodeModel.CFGKEY_MAXVALUES, 100000);
+        SettingsModelInteger maxValuesSetting = new SettingsModelInteger(AnonymizerNodeModel.CFGKEY_MAXVALUES, 1000000);
         addDialogComponent(new DialogComponentNumberEdit(maxValuesSetting, m_maxValuesTitle));
   
         functionSetting.addChangeListener(new ChangeListener() {
 			
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
-				// TODO Auto-generated method stub
 				if(functionSetting.getStringValue() == "UUID") {
 					maxValuesSetting.setEnabled(true);
 				} else {
