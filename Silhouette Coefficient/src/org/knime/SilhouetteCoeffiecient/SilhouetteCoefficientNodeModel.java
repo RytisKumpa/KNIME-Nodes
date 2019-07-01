@@ -17,7 +17,11 @@ import org.knime.core.data.DataTable;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataTableSpecCreator;
 import org.knime.core.data.DoubleValue;
+import org.knime.core.data.MissingValue;
+import org.knime.core.data.MissingValueException;
 import org.knime.core.data.RowIterator;
+import org.knime.core.data.RowKey;
+import static org.knime.core.data.RowKey.createRowKey;
 import org.knime.core.data.container.DataContainer;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
@@ -121,11 +125,11 @@ public class SilhouetteCoefficientNodeModel extends NodeModel {
 						if (!cell.isMissing()) {
 							newRow[i] = cell;
 						} else {
-							throw new Exception("Missing values not supported.");
+							throw new MissingValueException((MissingValue) cell);
 						}
 
 					}
-					String rowKey = "RowKey_" + clusters.get(clusterName).size();
+					RowKey rowKey = createRowKey(clusters.get(clusterName).size());
 					clusters.get(clusterName).addRowToTable(new DefaultRow(rowKey, newRow));
 				} else {
 					DataContainer container = exec.createDataContainer(createDataTableSpecs(inTableSpec));
@@ -135,11 +139,11 @@ public class SilhouetteCoefficientNodeModel extends NodeModel {
 						if (!cell.isMissing()) {
 							newRow[i] = cell;
 						} else {
-							throw new Exception("Missing values not supported.");
+							throw new MissingValueException((MissingValue) cell);
 						}
 
 					}
-					String rowKey = "RowKey_" + clusters.get(clusterName).size();
+					RowKey rowKey = createRowKey(clusters.get(clusterName).size());
 					clusters.get(clusterName).addRowToTable(new DefaultRow(rowKey, newRow));
 				}
 			}
@@ -246,7 +250,7 @@ public class SilhouetteCoefficientNodeModel extends NodeModel {
 
 		DataCell sICell = new DoubleCell(sillhoetteCoefficient);
 
-		outputContainer.addRowToTable(new DefaultRow("Row_1", sICell));
+		outputContainer.addRowToTable(new DefaultRow(createRowKey((long) 1), sICell));
 
 		outputContainer.close();
 

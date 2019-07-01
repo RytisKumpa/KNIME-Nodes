@@ -16,7 +16,11 @@ import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataTableSpecCreator;
 import org.knime.core.data.DoubleValue;
+import org.knime.core.data.MissingValue;
+import org.knime.core.data.MissingValueException;
 import org.knime.core.data.RowIterator;
+import org.knime.core.data.RowKey;
+import static org.knime.core.data.RowKey.createRowKey;
 import org.knime.core.data.container.DataContainer;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
@@ -119,11 +123,11 @@ public class DaviesBouldinIndexNodeModel extends NodeModel {
 						if (!cell.isMissing()) {
 							newRow[i] = cell;
 						} else {
-							throw new Exception("Missing values not supported.");
+							throw new MissingValueException((MissingValue) cell);
 						}
 
 					}
-					String rowKey = "RowKey_" + clusters.get(clusterName).size();
+					RowKey rowKey = createRowKey(clusters.get(clusterName).size());
 					clusters.get(clusterName).addRowToTable(new DefaultRow(rowKey, newRow));
 				} else {
 					DataContainer container = exec.createDataContainer(createDataTableSpecs(inTableSpec));
@@ -133,11 +137,11 @@ public class DaviesBouldinIndexNodeModel extends NodeModel {
 						if (!cell.isMissing()) {
 							newRow[i] = cell;
 						} else {
-							throw new Exception("Missing values not supported.");
+							throw new MissingValueException((MissingValue) cell);
 						}
 
 					}
-					String rowKey = "RowKey_" + clusters.get(clusterName).size();
+					RowKey rowKey = createRowKey(clusters.get(clusterName).size());
 					clusters.get(clusterName).addRowToTable(new DefaultRow(rowKey, newRow));
 				}
 			}
