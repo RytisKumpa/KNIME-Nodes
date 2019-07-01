@@ -190,6 +190,7 @@ public class LocalOutlierFactorNodeModel extends NodeModel {
 	
 	private void verifyInputTables(final DataTableSpec[] inSpecs, List<String> includeList,
 			Map<Integer, Integer> firstToSecondIDs) throws InvalidSettingsException {
+		
 		if (!inSpecs[0].containsCompatibleType(DoubleValue.class)) {
             throw new InvalidSettingsException(
                     "First input table does not contain a numeric column.");
@@ -214,6 +215,7 @@ public class LocalOutlierFactorNodeModel extends NodeModel {
                         + "with corresponding column '" + includeColumn + "' from first table.");
         	}	
         }		
+	
 	}
 
 	/**
