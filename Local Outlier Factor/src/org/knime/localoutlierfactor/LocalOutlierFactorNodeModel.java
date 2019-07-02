@@ -235,6 +235,7 @@ public class LocalOutlierFactorNodeModel extends NodeModel {
 		DataTableSpec outSpec = new DataTableSpec(inSpec, appendedSpec);
 		return new DataTableSpec[] { outSpec };
 	}
+	
 
 	/**
 	 * Computes the local reachability density for the particular query.
