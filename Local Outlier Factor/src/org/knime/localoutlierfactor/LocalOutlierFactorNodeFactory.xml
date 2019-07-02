@@ -7,7 +7,7 @@
     </shortDescription>
     
     <fullDescription>
-        <intro>This node computes the Local Outlier Factor (LOC) for each point in a table and helps detect anomalous points. LOC measures the local deviation of each point with respect to its closest neighbors. A score of ~1 suggests the point is of similar density as its neighbors. A larger score would suggest the point is an outlier, and a lower score would suggest the point is of higher density than its neighbors.</intro>
+        <intro>This node computes the Local Outlier Factor (LOC) for each point in the test data table and helps detect anomalous points. The model stores the training data in memory and uses it to predict the LOC for each point in test data. LOC measures the local deviation of each point with respect to its closest neighbors. A score of ~1 suggests the point is of similar density as its neighbors. A larger score would suggest the point is an outlier, and a lower score would suggest the point is of higher density than its neighbors.</intro>
         
         
         <option name="Exclude">Columns to exclude from the computation.</option>
@@ -17,7 +17,8 @@
     </fullDescription>
     
     <ports>
-        <inPort index="0" name="Input table">The data table with points in the vector space.</inPort>
+        <inPort index="0" name="Training data">The data table with training data.</inPort>
+        <inPort index="1" name="Test data">The data table with test data.</inPort>
         <!-- possibly more input ports here-->
         <outPort index="0" name="Output table with LOC appended for each point">The original data table with Local Outlier Factor appended for each point.</outPort>
         <!-- possibly more output ports here-->

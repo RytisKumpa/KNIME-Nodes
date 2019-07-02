@@ -38,7 +38,6 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelFilterString;
 import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 
-
 /**
  * This is the model implementation of LocalOutlierFactor. This node computes
  * the Local Outlier Factor for each point in a table and helps detect anomalous
@@ -73,29 +72,26 @@ public class LocalOutlierFactorNodeModel extends NodeModel {
 		DataTableSpec secondTableSpec = inData[1].getDataTableSpec();
 
 		BufferedDataTable firstTable = inData[0];
-		
+
 		BufferedDataTable secondTable = inData[1];
-		
-		if(firstTable.getDataTableSpec().getColumnNames().length == 0) {
+
+		if (firstTable.getDataTableSpec().getColumnNames().length == 0) {
 			throw new Exception("Empty tables not supported.");
 		}
 
 		DataTableSpec outputSpec = configure(new DataTableSpec[] { firstTableSpec, secondTableSpec })[0];
 
 		BufferedDataContainer container = exec.createDataContainer(outputSpec);
-		
+
 		// List of columns selected for processing and their respective IDs
 		List<String> includeList = m_filterString.getIncludeList();
 		Map<Integer, Integer> firstToSecondIDs = new HashMap<Integer, Integer>();
-		
-		//int[] includeListID = inSpec.columnsToIndices((String[]) includeList.stream().toArray(String[]::new));
-		
+
 		verifyInputTables(new DataTableSpec[] { firstTableSpec, secondTableSpec }, includeList, firstToSecondIDs);
-		
-		
+
 		// Create K-D Tree for efficiently finding nearest neighbors;
 		KDTreeBuilder<ArrayList<Double>> kdTree = createKDTree(firstTable, firstToSecondIDs.keySet(), exec);
-		
+
 		KDTree<ArrayList<Double>> finalKDTree = kdTree.buildTree();
 
 		CloseableRowIterator inTableIterator = secondTable.iterator();
@@ -104,14 +100,15 @@ public class LocalOutlierFactorNodeModel extends NodeModel {
 		// Iterate through each point and append the computed Local Outlier Factor.
 		while (inTableIterator.hasNext()) {
 
-			exec.checkCanceled();	
-			exec.setProgress(0.1 + (double) i / secondTable.size() * 0.9 , "Processing row: " + i);
+			exec.checkCanceled();
+			exec.setProgress(0.1 + (double) i / secondTable.size() * 0.9, "Processing row: " + i);
 
 			DataRow currentRow = inTableIterator.next();
 			ArrayList<Double> currentRowArrayList = new ArrayList<Double>();
 
 			for (int firstTableIdx : firstToSecondIDs.keySet()) {
-				currentRowArrayList.add(((DoubleCell) currentRow.getCell(firstToSecondIDs.get(firstTableIdx))).getDoubleValue());
+				currentRowArrayList
+						.add(((DoubleCell) currentRow.getCell(firstToSecondIDs.get(firstTableIdx))).getDoubleValue());
 			}
 
 			double[] currentRowDoubleArray = currentRowArrayList.stream().mapToDouble(Double::doubleValue).toArray();
@@ -135,27 +132,28 @@ public class LocalOutlierFactorNodeModel extends NodeModel {
 			currentRowCells.add(new DoubleCell(LOF));
 			container.addRowToTable(new DefaultRow(createRowKey(i++), currentRowCells));
 		}
-		
+
 		inTableIterator.close();
 		finalKDTree = null;
 		container.close();
 		BufferedDataTable out = container.getTable();
 		return new BufferedDataTable[] { out };
 	}
-	
+
 	/**
-	 * Takes the values from the BufferedDataTable and fiores them in a KDTree
-	 * @param table
-	 * @param includeListID
-	 * @param exec
-	 * @return
+	 * Takes the values from the BufferedDataTable and stores them in a KDTree.
+	 * 
+	 * @param table Input table, which values will be used for creating the KDTree.
+	 * @param includeIDs A set of column names to include in the computation.
+	 * @param exec Execution context.
+	 * @return Return the KDTreeBuilder with values stored inside.
 	 * @throws CanceledExecutionException
 	 */
-	KDTreeBuilder<ArrayList<Double>> createKDTree(BufferedDataTable table, Set<Integer> includeListID, ExecutionContext exec)
-			throws CanceledExecutionException {
+	KDTreeBuilder<ArrayList<Double>> createKDTree(BufferedDataTable table, Set<Integer> includeIDs,
+			ExecutionContext exec) throws CanceledExecutionException {
 
 		CloseableRowIterator inTableIterator = table.iterator();
-		KDTreeBuilder<ArrayList<Double>> kdTree = new KDTreeBuilder<ArrayList<Double>>(includeListID.size());
+		KDTreeBuilder<ArrayList<Double>> kdTree = new KDTreeBuilder<ArrayList<Double>>(includeIDs.size());
 
 		long i = 0;
 		while (inTableIterator.hasNext()) {
@@ -165,7 +163,7 @@ public class LocalOutlierFactorNodeModel extends NodeModel {
 			DataRow currentRow = inTableIterator.next();
 			ArrayList<Double> currentRowArrayList = new ArrayList<Double>();
 
-			for (int idX : includeListID) {
+			for (int idX : includeIDs) {
 				DataCell currentCell = currentRow.getCell(idX);
 				if (!currentCell.isMissing()) {
 					currentRowArrayList.add(((DoubleCell) currentCell).getDoubleValue());
@@ -187,35 +185,42 @@ public class LocalOutlierFactorNodeModel extends NodeModel {
 	@Override
 	protected void reset() {
 	}
-	
+
+	/**
+	 * Verifies the validity of the first and second input tables, and maps
+	 * respective first table column IDs to second table column IDs.
+	 * 
+	 * @param inSpecs          The DataTableSpecs of the the input tables.
+	 * @param includeList      The list of column names to include in the computation.
+	 * @param firstToSecondIDs The map, that will be used for mapping the first
+	 *                         table IDs to second table IDs.
+	 * @throws InvalidSettingsException
+	 */
 	private void verifyInputTables(final DataTableSpec[] inSpecs, List<String> includeList,
 			Map<Integer, Integer> firstToSecondIDs) throws InvalidSettingsException {
-		
+
 		if (!inSpecs[0].containsCompatibleType(DoubleValue.class)) {
-            throw new InvalidSettingsException(
-                    "First input table does not contain a numeric column.");
-        }
-        if (!inSpecs[0].containsCompatibleType(StringValue.class)) {
-            throw new InvalidSettingsException(
-                    "First input table does not contain a class column of type "
-                            + "string.");
-        }
-        
-        for(String includeColumn : includeList) {
-        	int IDinFirstTable = inSpecs[0].findColumnIndex(includeColumn);
-        	int IDinSecondTable = inSpecs[1].findColumnIndex(includeColumn);
-        	if(IDinSecondTable == -1) {
-        		throw new InvalidSettingsException("Second input table does not contain a column: '"
-                                                   + includeColumn + "'");
-        	}
-        	if(inSpecs[1].getColumnSpec(IDinSecondTable).getType().isCompatible(DoubleValue.class)) {
-        		firstToSecondIDs.put(IDinFirstTable, IDinSecondTable);
-        	} else {
-        		throw new InvalidSettingsException("Column '" + includeColumn + "' from second table is not compatible "
-                        + "with corresponding column '" + includeColumn + "' from first table.");
-        	}	
-        }		
-	
+			throw new InvalidSettingsException("First input table does not contain a numeric column.");
+		}
+		if (!inSpecs[0].containsCompatibleType(StringValue.class)) {
+			throw new InvalidSettingsException(
+					"First input table does not contain a class column of type " + "string.");
+		}
+
+		for (String includeColumn : includeList) {
+			int IDinFirstTable = inSpecs[0].findColumnIndex(includeColumn);
+			int IDinSecondTable = inSpecs[1].findColumnIndex(includeColumn);
+			if (IDinSecondTable == -1) {
+				throw new InvalidSettingsException(
+						"Second input table does not contain a column: '" + includeColumn + "'");
+			}
+			if (inSpecs[1].getColumnSpec(IDinSecondTable).getType().isCompatible(DoubleValue.class)) {
+				firstToSecondIDs.put(IDinFirstTable, IDinSecondTable);
+			} else {
+				throw new InvalidSettingsException("Column '" + includeColumn + "' from second table is not compatible "
+						+ "with corresponding column '" + includeColumn + "' from first table.");
+			}
+		}
 	}
 
 	/**
@@ -233,8 +238,9 @@ public class LocalOutlierFactorNodeModel extends NodeModel {
 
 	/**
 	 * Computes the local reachability density for the particular query.
-	 * @param tree The KDTree used to retrieve the nearest neighbors.
-	 * @param query The point of which nearest neighbors are queried.
+	 * 
+	 * @param tree         The KDTree used to retrieve the nearest neighbors.
+	 * @param query        The point of which nearest neighbors are queried.
 	 * @param numNeingbors The number of neighbors the point will be compared to.
 	 * @return The double value of the computed value.
 	 */
@@ -258,7 +264,7 @@ public class LocalOutlierFactorNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		
+
 		m_numneigbors.saveSettingsTo(settings);
 		m_filterString.saveSettingsTo(settings);
 
@@ -269,7 +275,7 @@ public class LocalOutlierFactorNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
-		
+
 		m_numneigbors.loadSettingsFrom(settings);
 		m_filterString.loadSettingsFrom(settings);
 
@@ -293,7 +299,6 @@ public class LocalOutlierFactorNodeModel extends NodeModel {
 	protected void loadInternals(final File internDir, final ExecutionMonitor exec)
 			throws IOException, CanceledExecutionException {
 
-
 	}
 
 	/**
@@ -302,7 +307,6 @@ public class LocalOutlierFactorNodeModel extends NodeModel {
 	@Override
 	protected void saveInternals(final File internDir, final ExecutionMonitor exec)
 			throws IOException, CanceledExecutionException {
-
 
 	}
 
